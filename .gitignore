@@ -1,0 +1,10 @@
+# Eclipse compiled files
+/bin/
+*.class
+
+# Build output
+/out/
+target/
+
+# Eclipse workspace files
+.metadata/
