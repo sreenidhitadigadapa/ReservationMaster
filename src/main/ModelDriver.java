@@ -2,10 +2,20 @@
 package main;
 
 /**
- * Tests the model independently of the view.
+ * Tests the ReservationModel independently of the view and controller.
+ * Verifies that parties can be added, viewed, seated, and canceled
+ * while maintaining the correct FIFO order.
  */
 public class ModelDriver
 {
+    /**
+     * Runs a series of checks to verify that the ReservationModel
+     * works correctly without using the view or controller.
+     * Tests adding parties, viewing the next party, seating parties,
+     * canceling reservations, and checking if the waitlist is empty.
+     *
+     * @param args command-line arguments (not used)
+     */
     public static void main(String[] args)
     {
         ReservationModel model = new ReservationModel();
@@ -42,6 +52,15 @@ public class ModelDriver
     }
 
 
+    /**
+     * Checks whether a test condition is true.
+     * Prints a PASS message if the condition is true.
+     * Throws an AssertionError if the condition is false.
+     *
+     * @param condition the condition being tested
+     * @param testName the name of the test being performed
+     * @throws AssertionError if the condition is false
+     */
     private static void check(boolean condition, String testName)
     {
         if (!condition)
@@ -52,4 +71,3 @@ public class ModelDriver
         System.out.println("PASS: " + testName);
     }
 }
-

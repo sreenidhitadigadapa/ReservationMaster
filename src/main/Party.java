@@ -6,9 +6,6 @@ import java.util.Objects;
 /**
  * Represents a party waiting for a table at a restaurant.
  * Stores the party's name and the number of people in the party.
- *
- * @author Sreenidhi Tadigadapa
- * @version 11/09/2026
  */
 
 public class Party
@@ -26,6 +23,8 @@ public class Party
      *
      * @param name the name of the party
      * @param partySize the number of people in the party
+     * @throws IllegalArgumentException if the name is invalid
+     *         or the party size is less than one
      */
     public Party(String name, int partySize)
     {

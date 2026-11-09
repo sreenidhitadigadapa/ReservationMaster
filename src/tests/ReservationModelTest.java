@@ -7,19 +7,32 @@ import student.TestCase;
 
 /**
  * Tests the restaurant waitlist model.
+ * Verifies adding, seating, and canceling parties,
+ * retrieving waitlist information, and handling invalid inputs.
+ *
+ * @author Sreenidhi Tadigadapa
+ * @version 11/09/2026
  */
-
 public class ReservationModelTest extends TestCase
 {
     private ReservationModel model;
 
 
+    /**
+     * Creates a new empty ReservationModel before each test.
+     */
+    @Override
     public void setUp()
     {
         model = new ReservationModel();
     }
 
 
+    /**
+     * Tests that a new model starts with an empty waitlist.
+     * Verifies the party count, next party, seating behavior,
+     * and returned waitlist array.
+     */
     public void testEmptyModel()
     {
         assertTrue(model.isWaitlistEmpty());
@@ -30,19 +43,28 @@ public class ReservationModelTest extends TestCase
     }
 
 
+    /**
+     * Tests adding a single party to the waitlist.
+     * Verifies that the party count increases and
+     * the added party becomes the next party.
+     */
     public void testAddParty()
     {
         model.addParty("Smith", 4);
 
         assertEquals(1, model.getPartyCount());
         assertFalse(model.isWaitlistEmpty());
-
         assertEquals(
             new Party("Smith", 4),
             model.getNextParty());
     }
 
 
+    /**
+     * Tests adding multiple parties to the waitlist.
+     * Verifies the party count and that the first
+     * added party remains at the front of the queue.
+     */
     public void testAddMultipleParties()
     {
         model.addParty("Smith", 4);
@@ -50,13 +72,17 @@ public class ReservationModelTest extends TestCase
         model.addParty("Patel", 3);
 
         assertEquals(3, model.getPartyCount());
-
         assertEquals(
             new Party("Smith", 4),
             model.getNextParty());
     }
 
 
+    /**
+     * Tests seating the next party in FIFO order.
+     * Verifies that the first party is removed,
+     * the count decreases, and the next party moves forward.
+     */
     public void testSeatNextParty()
     {
         model.addParty("Smith", 4);
@@ -67,13 +93,17 @@ public class ReservationModelTest extends TestCase
             model.seatNextParty());
 
         assertEquals(1, model.getPartyCount());
-
         assertEquals(
             new Party("Johnson", 2),
             model.getNextParty());
     }
 
 
+    /**
+     * Tests seating a party when the waitlist is empty.
+     * Verifies that null is returned and the waitlist
+     * remains empty.
+     */
     public void testSeatFromEmptyWaitlist()
     {
         assertNull(model.seatNextParty());
@@ -81,6 +111,11 @@ public class ReservationModelTest extends TestCase
     }
 
 
+    /**
+     * Tests canceling an existing reservation.
+     * Verifies that the party is removed, the count
+     * decreases, and a repeated cancellation returns false.
+     */
     public void testCancelReservation()
     {
         model.addParty("Smith", 4);
@@ -88,11 +123,15 @@ public class ReservationModelTest extends TestCase
 
         assertTrue(model.cancelReservation("Johnson", 2));
         assertEquals(1, model.getPartyCount());
-
         assertFalse(model.cancelReservation("Johnson", 2));
     }
 
 
+    /**
+     * Tests canceling a reservation that does not exist.
+     * Verifies that false is returned and the waitlist
+     * remains unchanged.
+     */
     public void testCancelNotFound()
     {
         model.addParty("Smith", 4);
@@ -102,6 +141,12 @@ public class ReservationModelTest extends TestCase
     }
 
 
+    /**
+     * Tests retrieving all parties from the waitlist.
+     * Verifies that parties are returned in FIFO order
+     * and modifying the returned array does not
+     * change the original waitlist.
+     */
     public void testGetWaitlist()
     {
         model.addParty("Smith", 4);
@@ -121,6 +166,11 @@ public class ReservationModelTest extends TestCase
     }
 
 
+    /**
+     * Tests that adding a party with an invalid name
+     * throws an IllegalArgumentException.
+     * Verifies that the waitlist remains empty.
+     */
     public void testInvalidAddName()
     {
         try
@@ -137,6 +187,11 @@ public class ReservationModelTest extends TestCase
     }
 
 
+    /**
+     * Tests that adding a party with an invalid size
+     * throws an IllegalArgumentException.
+     * Verifies that the waitlist remains empty.
+     */
     public void testInvalidAddSize()
     {
         try
@@ -153,6 +208,11 @@ public class ReservationModelTest extends TestCase
     }
 
 
+    /**
+     * Tests that canceling a reservation with invalid
+     * party information throws an IllegalArgumentException.
+     * Checks both a null name and a negative party size.
+     */
     public void testInvalidCancellation()
     {
         try

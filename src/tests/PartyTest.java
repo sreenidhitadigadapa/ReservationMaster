@@ -8,7 +8,6 @@ import student.TestCase;
  * Tests the Party class, including its constructor, getters,
  * equality comparison, string representation, and validation.
  */
-
 public class PartyTest extends TestCase
 {
     private Party party;
@@ -17,12 +16,17 @@ public class PartyTest extends TestCase
     /**
      * Sets up a party before each test.
      */
+    @Override
     public void setUp()
     {
         party = new Party("Smith", 4);
     }
 
 
+    /**
+     * Tests that the constructor correctly initializes the
+     * party name and size and that the getters return these values.
+     */
     public void testConstructorAndGetters()
     {
         assertEquals("Smith", party.getName());
@@ -30,6 +34,10 @@ public class PartyTest extends TestCase
     }
 
 
+    /**
+     * Tests that party names containing spaces are accepted
+     * and stored correctly.
+     */
     public void testNameWithSpaces()
     {
         Party another = new Party("Mary Jane", 2);
@@ -39,6 +47,10 @@ public class PartyTest extends TestCase
     }
 
 
+    /**
+     * Tests that a party size of one is accepted as the
+     * minimum valid party size.
+     */
     public void testMinimumSize()
     {
         Party minimum = new Party("Jones", 1);
@@ -47,6 +59,11 @@ public class PartyTest extends TestCase
     }
 
 
+    /**
+     * Tests equality between parties with matching names and sizes.
+     * Also verifies inequality for different parties, null, and
+     * unrelated objects, as well as hash code consistency.
+     */
     public void testEquals()
     {
         Party same = new Party("Smith", 4);
@@ -63,12 +80,20 @@ public class PartyTest extends TestCase
     }
 
 
+    /**
+     * Tests that the toString method returns the party name
+     * and size in the expected format.
+     */
     public void testToString()
     {
         assertEquals("Smith (party of 4)", party.toString());
     }
 
 
+    /**
+     * Tests that the constructor rejects invalid party names,
+     * including empty, null, numeric, and whitespace-only names.
+     */
     public void testInvalidName()
     {
         try
@@ -113,6 +138,10 @@ public class PartyTest extends TestCase
     }
 
 
+    /**
+     * Tests that the constructor rejects invalid party sizes,
+     * including zero and negative values.
+     */
     public void testInvalidSize()
     {
         try

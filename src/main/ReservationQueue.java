@@ -4,20 +4,25 @@ package main;
 /**
  * Implements a singly linked queue to manage restaurant parties.
  * Supports adding, removing, and viewing parties in FIFO order.
- *
- * @author Sreenidhi Tadigadapa
- * @version 11/09/2026
  */
-
 public class ReservationQueue
 {
     //~ Private Inner Class ..................................................
 
+    /**
+     * Represents a node in the singly linked queue.
+     * Stores a party and a reference to the next node.
+     */
     private static class Node
     {
         private Party data;
         private Node next;
 
+        /**
+         * Creates a new node containing the given party.
+         *
+         * @param data the party stored in the node
+         */
         public Node(Party data)
         {
             this.data = data;
@@ -35,6 +40,10 @@ public class ReservationQueue
 
     //~ Constructors ..........................................................
 
+    /**
+     * Creates a new empty ReservationQueue.
+     * Initializes the front and rear to null and the size to zero.
+     */
     public ReservationQueue()
     {
         front = null;
@@ -49,6 +58,7 @@ public class ReservationQueue
      * Adds a party to the rear of the queue.
      *
      * @param party the party to add
+     * @throws IllegalArgumentException if the party is null
      */
     public void enqueue(Party party)
     {
@@ -75,9 +85,9 @@ public class ReservationQueue
 
 
     /**
-     * Removes and returns the first party.
+     * Removes and returns the first party in the queue.
      *
-     * @return the first party, or null if empty
+     * @return the first party, or null if the queue is empty
      */
     public Party dequeue()
     {
@@ -102,7 +112,7 @@ public class ReservationQueue
     /**
      * Returns the first party without removing it.
      *
-     * @return the first party, or null if empty
+     * @return the first party, or null if the queue is empty
      */
     public Party peek()
     {
@@ -118,7 +128,7 @@ public class ReservationQueue
     /**
      * Checks whether the queue is empty.
      *
-     * @return true if empty
+     * @return true if the queue is empty, false otherwise
      */
     public boolean isEmpty()
     {
@@ -127,9 +137,9 @@ public class ReservationQueue
 
 
     /**
-     * Returns the number of waiting parties.
+     * Returns the number of parties currently in the queue.
      *
-     * @return queue size
+     * @return the number of waiting parties
      */
     public int size()
     {
@@ -138,10 +148,10 @@ public class ReservationQueue
 
 
     /**
-     * Checks whether a matching party exists.
+     * Checks whether a matching party exists in the queue.
      *
      * @param party the party to find
-     * @return true if found
+     * @return true if the party is found, false otherwise
      */
     public boolean contains(Party party)
     {
@@ -168,9 +178,10 @@ public class ReservationQueue
 
     /**
      * Removes the first matching party from the queue.
+     * Updates the front or rear references when necessary.
      *
      * @param party the party to remove
-     * @return true if removed
+     * @return true if the party was removed, false otherwise
      */
     public boolean remove(Party party)
     {
@@ -212,9 +223,9 @@ public class ReservationQueue
 
 
     /**
-     * Returns the parties in FIFO order.
+     * Returns all parties in the queue in FIFO order.
      *
-     * @return an array of waiting parties
+     * @return an array containing the waiting parties
      */
     public Party[] toArray()
     {
@@ -231,5 +242,4 @@ public class ReservationQueue
 
         return parties;
     }
-}
 }
