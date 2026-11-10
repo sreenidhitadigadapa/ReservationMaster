@@ -143,6 +143,7 @@ There will be two queues. A party chooses indoor, outdoor, or either. "Either" p
 ### GenAI note
 
 We used Claude to check over and help write javadoc comments for these files and parts:
+- `PartyTest`;
 - `ReservationQueueTest`;
 - `testFullMvpPath`;
 - the controller's Javadoc;
