@@ -133,7 +133,7 @@ There will be two queues. A party chooses indoor, outdoor, or either. "Either" p
 | `ReservationModel.java` | Sreenidhi | reviewed / revised / tested |
 | `ModelDriver.java` | Sreenidhi | wrote / reviewed |
 | `ReservationView.java` | Tyler | reviewed / revised / tested |
-| `ReservationController.java` | Jas | Wrote; Javadoc added with GenAI |
+| `ReservationController.java` | Jas | Wrote / reviewed |
 | `PartyTest.java` | Sreenidhi | wrote / reviewed |
 | `ReservationQueueTest.java` | Sreenidhi | wrote / reviewed / revised |
 | `ReservationModelTest.java` | Sreenidhi | Wrote / reviewed |
