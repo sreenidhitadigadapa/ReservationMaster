@@ -1,6 +1,13 @@
 package main;
 
-/** Routes menu actions from the view to the model. */
+/**
+ * Controls the restaurant waitlist application.
+ * Connects the model and view, handles menu selections,
+ * and manages adding, seating, and canceling parties.
+ *
+ * @author Jasjeet Sarna
+ * @version 11/09/2026
+ */
 public class ReservationController
 {
     private final ReservationModel model;
