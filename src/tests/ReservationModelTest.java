@@ -1,4 +1,3 @@
-
 package tests;
 
 import main.Party;
@@ -74,6 +73,51 @@ public class ReservationModelTest extends TestCase
         assertEquals(3, model.getPartyCount());
         assertEquals(
             new Party("Smith", 4),
+            model.getNextParty());
+    }
+
+
+    /**
+     * Tests that a duplicate name and size cannot be added,
+     * regardless of capitalization, without changing the waitlist.
+     */
+    public void testRejectDuplicateParty()
+    {
+        model.addParty("Smith", 4);
+
+        try
+        {
+            model.addParty("smith", 4);
+            fail("Expected an IllegalArgumentException");
+        }
+        catch (IllegalArgumentException e)
+        {
+            // Expected
+        }
+
+        assertEquals(1, model.getPartyCount());
+        assertEquals(
+            new Party("Smith", 4),
+            model.getNextParty());
+
+        model.addParty("SMITH", 2);
+        assertEquals(2, model.getPartyCount());
+    }
+
+
+    /**
+     * Tests that an existing party can be cancelled
+     * using a different capitalization.
+     */
+    public void testCaseInsensitiveCancellation()
+    {
+        model.addParty("Smith", 4);
+        model.addParty("Jones", 2);
+
+        assertTrue(model.cancelReservation("sMiTh", 4));
+        assertEquals(1, model.getPartyCount());
+        assertEquals(
+            new Party("Jones", 2),
             model.getNextParty());
     }
 
