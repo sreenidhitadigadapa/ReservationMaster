@@ -4,6 +4,9 @@ package main;
 /**
  * Implements a singly linked queue to manage restaurant parties.
  * Supports adding, removing, and viewing parties in FIFO order.
+ * 
+ * @author Sreenidhi Tadigadapa
+ * @version 11/09/2026
  */
 public class ReservationQueue
 {

@@ -6,6 +6,9 @@ import java.util.Locale;
 /**
  * Represents a party waiting for a table at a restaurant.
  * Stores the party's name and the number of people in the party.
+ * 
+ * @author Sreenidhi Tadigadapa
+ * @version 11/16/2026
  */
 public class Party
 {
@@ -23,7 +26,7 @@ public class Party
      * @param name the name of the party
      * @param partySize the number of people in the party
      * @throws IllegalArgumentException if the name is invalid
-     *         or the party size is less than one
+     *         or the party size is outside the range 1 to 20
      */
     public Party(String name, int partySize)
     {
@@ -33,10 +36,10 @@ public class Party
                 "Party name must contain letters and spaces.");
         }
 
-        if (partySize < 1)
+        if (partySize < 1 || partySize > 20)
         {
             throw new IllegalArgumentException(
-                "Party size must be a positive integer.");
+                "Party size must be between 1 and 20.");
         }
 
         this.name = name.trim();

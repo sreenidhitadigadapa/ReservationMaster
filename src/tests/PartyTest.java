@@ -6,6 +6,9 @@ import student.TestCase;
 /**
  * Tests the Party class, including its constructor, getters,
  * equality comparison, string representation, and validation.
+ * 
+ * @author Sreenidhi Tadigadapa
+ * @version 11/16/2026
  */
 public class PartyTest extends TestCase
 {
@@ -179,5 +182,37 @@ public class PartyTest extends TestCase
         {
             // Expected
         }
+    }
+    
+
+    /**
+     * Tests that the maximum allowed party size of 20 is accepted
+     * and that a party size greater than 20 is rejected.
+     */
+    public void testMaximumPartySize()
+    {
+        Party maximum = new Party("Smith", 20);
+        assertEquals(20, maximum.getPartySize());
+    
+        try
+        {
+            new Party("Smith", 21);
+            fail("Expected an IllegalArgumentException");
+        }
+        catch (IllegalArgumentException e)
+        {
+            // Expected
+        }
+    }
+    
+    /**
+     * Tests that toString correctly formats a party
+     * whose name contains spaces.
+     */
+    public void testToStringWithSpaces()
+    {
+        Party party = new Party("Mary Jane", 4);
+
+        assertEquals("Mary Jane (party of 4)", party.toString());
     }
 }

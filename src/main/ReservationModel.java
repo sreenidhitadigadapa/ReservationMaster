@@ -4,6 +4,9 @@ package main;
  * Manages the restaurant waitlist using a ReservationQueue.
  * Handles adding parties, seating parties, canceling reservations,
  * and retrieving waitlist information.
+ *  
+ * @author Sreenidhi Tadigadapa
+ * @version 11/09/2026
  */
 public class ReservationModel
 {

@@ -5,6 +5,9 @@ package main;
  * Tests the ReservationModel independently of the view and controller.
  * Verifies that parties can be added, viewed, seated, and canceled
  * while maintaining the correct FIFO order.
+ * 
+ * @author Sreenidhi Tadigadapa
+ * @version 11/09/2026
  */
 public class ModelDriver
 {

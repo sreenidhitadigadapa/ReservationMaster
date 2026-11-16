@@ -15,7 +15,7 @@ import java.util.Scanner;
  * controller can stop cleanly instead of crashing.
  *
  * @author Tyler Santiago (tylermsantiago)
- * @version 11/09/2026
+ * @version 11/16/2026
  */
 public class ReservationView
 {
@@ -231,9 +231,10 @@ public class ReservationView
     }
 
 
+
     /**
      * Reads a party size. Re-prompts until the user types a whole
-     * number that is at least 1.
+     * number between 1 and 20, inclusive.
      *
      * @return the party size, or null if input ran out
      */
@@ -242,23 +243,23 @@ public class ReservationView
         while (true)
         {
             String line = prompt("Party size: ");
-
+    
             if (line == null)
             {
                 return null;
             }
-
+    
             Integer size = parseInt(line);
-
-            if (size != null && size >= 1)
+    
+            if (size != null && size >= 1 && size <= 20)
             {
                 return size;
             }
-
-            showError("Party size must be a positive whole number, "
-                + "for example: 3");
+    
+            showError("Party size must be a whole number between 1 and 20.");
         }
     }
+
 
 
     //~ Private Methods .......................................................
