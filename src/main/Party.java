@@ -1,13 +1,12 @@
-
 package main;
 
 import java.util.Objects;
+import java.util.Locale;
 
 /**
  * Represents a party waiting for a table at a restaurant.
  * Stores the party's name and the number of people in the party.
  */
-
 public class Party
 {
     //~ Fields ................................................................
@@ -70,7 +69,8 @@ public class Party
 
 
     /**
-     * Checks whether two parties have the same name and size.
+     * Checks whether two parties have the same name
+     * (ignoring case) and size.
      *
      * @param other the object to compare
      * @return true if both parties have the same name and size
@@ -90,7 +90,7 @@ public class Party
 
         Party party = (Party)other;
 
-        return name.equals(party.name)
+        return name.equalsIgnoreCase(party.name)
             && partySize == party.partySize;
     }
 
@@ -103,7 +103,8 @@ public class Party
     @Override
     public int hashCode()
     {
-        return Objects.hash(name, partySize);
+        return Objects.hash(
+            name.toLowerCase(Locale.ROOT), partySize);
     }
 
 
