@@ -1,4 +1,3 @@
-
 package main;
 
 /**
@@ -28,6 +27,7 @@ public class ReservationModel
 
     /**
      * Adds a new party to the end of the waitlist.
+     * Rejects an existing reservation with the same name and size.
      *
      * @param name the name of the party
      * @param partySize the number of people in the party
@@ -36,6 +36,13 @@ public class ReservationModel
     public void addParty(String name, int partySize)
     {
         Party party = new Party(name, partySize);
+
+        if (waitlist.contains(party))
+        {
+            throw new IllegalArgumentException(
+                "This party is already on the waitlist.");
+        }
+
         waitlist.enqueue(party);
     }
 
