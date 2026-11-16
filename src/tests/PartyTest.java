@@ -1,4 +1,3 @@
-
 package tests;
 
 import main.Party;
@@ -77,6 +76,23 @@ public class PartyTest extends TestCase
         assertFalse(party.equals(null));
         assertFalse(party.equals("Smith"));
         assertEquals(party.hashCode(), same.hashCode());
+    }
+
+
+    /**
+     * Tests that name matching is case-insensitive and hash codes agree.
+     */
+    public void testCaseInsensitiveEquals()
+    {
+        Party lower = new Party("smith", 4);
+        Party upper = new Party("SMITH", 4);
+
+        assertTrue(party.equals(lower));
+        assertTrue(lower.equals(upper));
+        assertEquals(party.hashCode(), lower.hashCode());
+        assertEquals(party.hashCode(), upper.hashCode());
+        assertFalse(party.equals(new Party("smith", 2)));
+        assertEquals("Smith", party.getName());
     }
 
 
