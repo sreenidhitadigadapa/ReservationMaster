@@ -455,4 +455,94 @@ public class ReservationModelTest extends TestCase
             }
         }
     }
+
+
+    /**
+     * Tests that each section keeps FIFO order when adds and seats
+     * are interleaved across both sections.
+     */
+    public void testInterleavedAddAndSeat()
+    {
+        model.addParty("Smith", 4, Section.INDOOR);
+        model.addParty("Lee", 2, Section.OUTDOOR);
+        model.addParty("Kim", 3, Section.INDOOR);
+
+        assertEquals(new Party("Smith", 4),
+            model.seatNextParty(Section.INDOOR));
+
+        model.addParty("Patel", 2, Section.INDOOR);
+        model.addParty("Ruiz", 5, Section.OUTDOOR);
+
+        assertEquals(new Party("Lee", 2),
+            model.seatNextParty(Section.OUTDOOR));
+        assertEquals(new Party("Kim", 3),
+            model.seatNextParty(Section.INDOOR));
+
+        model.addParty("Chen", 6, Section.EITHER);
+
+        Party[] inside = model.getWaitlist(Section.INDOOR);
+        assertEquals(2, inside.length);
+        assertEquals(new Party("Patel", 2), inside[0]);
+        assertEquals(new Party("Chen", 6), inside[1]);
+
+        assertEquals(new Party("Ruiz", 5),
+            model.seatNextParty(Section.OUTDOOR));
+        assertEquals(2, model.getPartyCount());
+    }
+
+
+    /**
+     * Tests that viewing the next party and counting a section reject
+     * a null or EITHER section, and that the counts start at zero.
+     */
+    public void testInvalidSectionForNextAndCount()
+    {
+        assertEquals(0, model.getPartyCount(Section.INDOOR));
+        assertEquals(0, model.getPartyCount(Section.OUTDOOR));
+
+        Section[] invalid = {null, Section.EITHER};
+
+        for (Section section : invalid)
+        {
+            try
+            {
+                model.getNextParty(section);
+                fail("Expected an IllegalArgumentException");
+            }
+            catch (IllegalArgumentException e)
+            {
+                // Expected
+            }
+
+            try
+            {
+                model.getPartyCount(section);
+                fail("Expected an IllegalArgumentException");
+            }
+            catch (IllegalArgumentException e)
+            {
+                // Expected
+            }
+        }
+    }
+
+
+    /**
+     * Tests that adding a party with a size above 20 is rejected
+     * by the model.
+     */
+    public void testInvalidAddSizeAboveMaximum()
+    {
+        try
+        {
+            model.addParty("Smith", 21, Section.INDOOR);
+            fail("Expected an IllegalArgumentException");
+        }
+        catch (IllegalArgumentException e)
+        {
+            // Expected
+        }
+
+        assertTrue(model.isWaitlistEmpty());
+    }
 }

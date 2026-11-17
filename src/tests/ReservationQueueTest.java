@@ -382,4 +382,36 @@ public class ReservationQueueTest extends TestCase
         assertNotNull(parties);
         assertEquals(0, parties.length);
     }
+
+
+    /**
+     * Tests that FIFO order holds when enqueues and dequeues are
+     * interleaved, so the front and rear move past each other.
+     */
+    public void testInterleavedEnqueueDequeue()
+    {
+        Party patel = new Party("Patel", 3);
+        Party lee = new Party("Lee", 2);
+
+        queue.enqueue(smith);
+        queue.enqueue(johnson);
+        assertEquals(smith, queue.dequeue());
+
+        queue.enqueue(henry);
+        assertEquals(johnson, queue.dequeue());
+
+        queue.enqueue(patel);
+        queue.enqueue(lee);
+        assertEquals(henry, queue.dequeue());
+
+        Party[] parties = queue.toArray();
+        assertEquals(2, parties.length);
+        assertEquals(patel, parties[0]);
+        assertEquals(lee, parties[1]);
+
+        assertEquals(patel, queue.dequeue());
+        assertEquals(lee, queue.dequeue());
+        assertNull(queue.dequeue());
+        assertTrue(queue.isEmpty());
+    }
 }

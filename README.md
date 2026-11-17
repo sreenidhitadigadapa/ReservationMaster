@@ -2,11 +2,27 @@
 
 A console waitlist for a restaurant with separate indoor and outdoor lines, each built on a singly linked FIFO queue. Hosts can add, view, seat, and cancel parties.
 
-## How to run
+## How to compile and run
 
-- **Model only (no view):** run `main.ModelDriver`, or run `ReservationModelTest` and `ReservationQueueTest` as JUnit tests.
-- **Thin view:** run `main.ReservationController`. The console view goes through the controller to reach the model.
-- **All tests:** run the `tests` package as JUnit tests. All 74 tests pass, including the JUnit tests for the core queue methods. This needs `student.jar` on the build path.
+**In Eclipse:** import the `ReservationMaster` folder as an existing project, and put `student.jar` on the build path (it's only needed for the tests).
+- **Program:** run `main.ReservationController`.
+- **Model only (no view):** run `main.ModelDriver`.
+- **Tests:** right-click the `tests` package and choose Run As → JUnit Test. All 79 tests pass.
+
+**From a terminal** (in the `ReservationMaster` folder):
+
+```
+javac -d bin src/main/*.java
+java -cp bin main.ReservationController
+```
+
+To compile and run a test class from a terminal, add `student.jar` to the classpath:
+
+```
+javac -d bin -cp student.jar src/main/*.java src/tests/*.java
+```
+
+**How the view connects to the model:** every user action goes through `ReservationController`, which calls `ReservationModel` and then passes the result to `ReservationView`. The view keeps no copy of model state. Its only fields are the `Scanner` and the output stream. Each display is built from data the controller just fetched from the model, such as a fresh `Party[]` from `getWaitlist`, so what the host sees always matches the model's current state.
 
 The program survives the bad input named in our scope:
 - a non-number or out-of-range menu choice;
@@ -22,7 +38,7 @@ In Deliverable 4 we first finished the four MVP fixes, then added our change fea
 
 ### How did our design absorb the change?
 
-**Classes the change feature modified compared with our D3 prediction:**
+**Classes the change feature actually touched, compared with our D3 prediction:**
 
 | Class | Predicted | What actually happened |
 |---|---|---|
@@ -72,9 +88,21 @@ The ripple into `ModelDriver` and the existing tests stayed inside the model's c
     - `ReservationControllerTest.testIndoorOutdoorSession`: a scripted session using both sections and a bad section answer.
   - `ReservationViewTest` is back in the project with these tests added. Its party size tests now cover 20 being accepted and 21 being rejected.
   - Existing model and controller tests were rewritten to pass a section.
+  - Added tests not in the plan:
+    - interleaved adds and seats, in both `ReservationQueueTest` and `ReservationModelTest`, to check FIFO order when the front and rear move past each other;
+    - a controller test for the new bad input the feature introduces: a duplicate in the other section, an empty section, and "either" when seating.
+
+### What design change would make the next feature cheaper?
+
+The cost of this feature came from places where "the list of sections" is spelled out by hand. The model has two named fields (`indoor`, `outdoor`) and `queueFor` picks between them with `if`s. The view's `readSection` and `sectionName` list the answers and labels for each value. Adding a third section, such as a patio, would mean editing all of those.
+
+The change that would make that cheaper is to store the queues in a map keyed by section (`EnumMap<Section, ReservationQueue>`). The display label and input letter would live on the enum itself, for example `Section.PATIO("Patio", 'P')`. Then a new section would be one new enum value. The model would loop over the map for cancel, duplicates, and "either" routing, and the view would loop over `Section.values()` to build its prompt.
+
+For our likely next feature, estimated wait times, the useful change is different. `ReservationModel` should expose a party's position in its line, so the estimate can be computed in the model from position times minutes per party. The view would only print the number.
 
 ### What doesn't work yet?
 
+All MVP features and the indoor/outdoor feature work, and all 79 tests pass. The known gaps:
 - **"Either" routing counts parties, not people.** A line with one party of 12 counts as shorter than a line with two parties of 2.
 - **A party can't switch sections without losing its place.** It has to cancel and rejoin at the back.
 - **Estimated wait times are not implemented.**
@@ -84,60 +112,43 @@ The ripple into `ModelDriver` and the existing tests stayed inside the model's c
 
 ## Next Steps
 
-### Finishing the MVP (in order)
+### What's left for the final build (in order)
 
-1. [DONE] Make name matching case-insensitive when cancelling (`Party` constructor and `equals`).
-2. [DONE] Reject duplicate parties (`ReservationModel.addParty`).
-3. [DONE] Add a maximum party size of 20 (`Party` constructor and `ReservationView.readPartySize`).
-4. [DONE] Add the missing `PartyTest` case.
-
-### [IMPLEMENTED] Change feature: indoor and outdoor waitlists
-
-There will be two queues. A party chooses indoor, outdoor, or either. "Either" parties join the shorter line, with ties going to indoor. The host seats parties by section, and cancel searches both lines.
-
-**Predicted to change:**
-- **`ReservationModel`:**
-  - replace `waitlist` with `indoor` and `outdoor` queues;
-  - `addParty(name, size, Section)` applies the routing rule;
-  - `getNextParty(Section)`, `seatNextParty(Section)`, `getWaitlist(Section)`, and `getPartyCount(Section)` work on one section;
-  - `cancelReservation` searches both queues.
-- **New `Section` enum (model):** `INDOOR`, `OUTDOOR`, `EITHER`.
-- **`ReservationView`:**
-  - new `readSection()`;
-  - `showMenu()` text updated;
-  - `showWaitlist(Section, Party[])` labels each section.
-- **`ReservationController`:**
-  - `addParty()`, `viewNextParty()`, `seatNextParty()`, `viewWaitlist()`, and `viewPartyCount()` ask the view for a section and pass it to the model.
-
-**Predicted not to change:**
-- `ReservationQueue` and its `Node`. Two lines are just two instances of the queue.
-- `Party`. A party's section is decided by which queue it is in.
+1. **Make "either" routing count people, not parties,** in `ReservationModel.addParty`, so a party of 12 counts as a longer line than two parties of 2. Add tests for the new tie and size cases.
+2. **Make the cancel message use the stored name** (show "Smith" even if the host typed "smith"). `cancelReservation` would need to return the removed `Party` instead of `boolean`, and the controller and tests would be updated to match.
+3. **Collapse repeated spaces inside names** in the `Party` constructor, so "Mary  Jane" matches "Mary Jane". Add a `PartyTest` case.
+4. **Store the maximum party size in one place.** Add a `Party.MAX_SIZE` constant and have `ReservationView.readPartySize` use it.
+5. **Do a final pass:** run all tests in Web-CAT, fix any style or coverage warnings, finish the attribution entries, and rehearse the demo.
 
 ### Stretch goals
 
-- **Doing:** multiple queues (the change feature above).
-- **If time allows:** estimated wait times, through a new `ReservationModel.getEstimatedWait(Section, int position)` method.
-- **Dropping:** reservation types and table availability, because both are too large for the time left.
+- **Committed and done:** multiple queues (indoor and outdoor seating), our D4 change feature.
+- **Committed, if steps 1 to 5 finish early:** estimated wait times, calculated in the model from a party's position in its line, and shown in the waitlist display.
+- **Dropped:**
+  - reservation types (scheduled vs. walk-in), because scheduled times don't fit a first-in, first-out line;
+  - table availability, because it is a separate system (tables, capacities, matching) that is too large for the time left.
 
-### New tests
+### 3-minute demo
 
-- **Model:**
-  - routing for indoor, outdoor, and either, including ties;
-  - seating from an empty section while the other section has parties;
-  - cancelling across both sections;
-  - per-section counts;
-  - a `null` section throws `IllegalArgumentException`.
-- **View:** `readSection()` with valid input in any capitalization, bad input, and end of input.
-- **Controller:** a scripted session that uses both sections, including a bad section choice.
-- **MVP fixes:** case-insensitive cancel, duplicate rejection, and the size limit (20 accepted, 21 rejected).
+| Time | What we show |
+|---|---|
+| 0:00–0:20 | What the app is, and the MVC split: model, view, controller. |
+| 0:20–0:50 | Run `ModelDriver`: the model runs with no view at all. |
+| 0:50–1:30 | Run the program and add three parties: one indoor, one outdoor, and one "either" that joins the shorter line. Then view the waitlist and counts for both sections. |
+| 1:30–2:05 | Seat the next outdoor party, cancel an indoor party from the middle of its line, and view the waitlist again to show the order was kept. |
+| 2:05–2:35 | Bad input: letters as a party size, size 21, a name with digits, "either" when seating, and a duplicate party. The program re-prompts or shows an error every time, without crashing. |
+| 2:35–3:00 | Run the test suite (79 passing), and point out that `Party` and `ReservationQueue` never changed for the new feature. |
 
 ### Who does what
 
 | Item | Owner |
 |---|---|
-| MVP fixes, `Section`, routing, and model tests | Sreenidhi |
-| View updates and view tests | Tyler |
-| Controller updates, integration, and controller tests | Jas |
+| 1. Routing by number of people, and its tests | Sreenidhi |
+| 2. Cancel message uses the stored name | Jas (controller) and Sreenidhi (model) |
+| 3. Collapsing spaces in names, and its `PartyTest` case | Sreenidhi |
+| 4. Single maximum-size constant | Tyler |
+| 5. Web-CAT pass and attribution | All |
+| Estimated wait times, if attempted | Sreenidhi (model) and Tyler (view) |
 
 ## Attribution
 
@@ -146,7 +157,7 @@ There will be two queues. A party chooses indoor, outdoor, or either. "Either" p
 | File | Who | How |
 |---|---|---|
 | `Party.java` | Sreenidhi | reviewed / revised / tested |
-| `Section.java` | Tyler | reviewed / revised/ tested |
+| `Section.java` | Tyler | reviewed / revised / tested |
 | `ReservationQueue.java` | Sreenidhi | reviewed / revised / tested |
 | `ReservationModel.java` | Sreenidhi | reviewed / revised / tested |
 | `ModelDriver.java` | Sreenidhi | wrote / reviewed |
@@ -154,20 +165,20 @@ There will be two queues. A party chooses indoor, outdoor, or either. "Either" p
 | `ReservationController.java` | Jas | Wrote / reviewed |
 | `PartyTest.java` | Sreenidhi | wrote / reviewed |
 | `ReservationQueueTest.java` | Sreenidhi | GenAI draft; reviewed / revised |
-| `ReservationModelTest.java` | Sreenidhi | Wrote / reviewed; section tests GenAI-assisted |
+| `ReservationModelTest.java` | Sreenidhi | Wrote / reviewed |
 | `ReservationViewTest.java` | Tyler | GenAI draft; reviewed / revised |
-| `ReservationControllerTest.java` | Jas | wrote / reviewed / revised; `testIndoorOutdoorSession` GenAI-assisted |
+| `ReservationControllerTest.java` | Jas | wrote / reviewed / revised |
 
 ### GenAI note
 
 We used Claude for these files and parts:
-- **Helped draft for Deliverable 3:**
+- **For Deliverable 3:**
   - `ReservationView`;
   - `ReservationViewTest`;
   - `ReservationQueueTest`;
   - the controller's Javadoc;
   - the README.
-- **Helped revise for Deliverable 4:**
+- **For Deliverable 4:**
   - `Section`;
   - the section logic in `ReservationModel`, `ReservationView`, `ReservationController`, and `ModelDriver`;
   - the new section tests;

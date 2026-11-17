@@ -114,4 +114,39 @@ public class ReservationControllerTest extends TestCase
         assertEquals(2, model.getPartyCount(Section.INDOOR));
         assertEquals(0, model.getPartyCount(Section.OUTDOOR));
     }
+
+
+    /**
+     * Tests that the bad input the indoor/outdoor feature introduces
+     * does not crash the program: a duplicate party in the other
+     * section, seating or viewing an empty section, cancelling a party
+     * that is not waiting, and input ending at the section prompt.
+     */
+    public void testFeatureBadInputSurvives()
+    {
+        ReservationModel model = new ReservationModel();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+        ReservationView view = new ReservationView(
+            new Scanner(
+                "1\nSmith\n4\ni\n" +
+                "1\nsmith\n4\no\n" +
+                "3\no\n" +
+                "2\nzzz\no\n" +
+                "5\nLee\n2\n" +
+                "1\nKim\n3\n"),
+            new PrintStream(output, true));
+
+        new ReservationController(model, view).run();
+
+        String text = output.toString();
+
+        assertTrue(text.contains("This party is already on the waitlist."));
+        assertTrue(text.contains("No parties are waiting in the outdoor section."));
+        assertTrue(text.contains("Enter I or O"));
+        assertTrue(text.contains("Reservation not found."));
+
+        assertEquals(1, model.getPartyCount());
+        assertEquals(1, model.getPartyCount(Section.INDOOR));
+    }
 }
