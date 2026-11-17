@@ -6,7 +6,7 @@ package main;
  * and manages adding, seating, and canceling parties.
  *
  * @author Jasjeet Sarna
- * @version 11/09/2026
+ * @version 11/17/2026
  */
 public class ReservationController
 {
@@ -106,13 +106,22 @@ public class ReservationController
             return;
         }
 
+        Section preference = view.readSection(true);
+
+        if (preference == null)
+        {
+            running = false;
+            return;
+        }
+
         try
         {
-            model.addParty(name, size);
+            Section joined = model.addParty(name, size, preference);
 
             view.showMessage(
                 "Added " + name +
-                " (party of " + size + ").");
+                " (party of " + size + ") to the " +
+                view.sectionName(joined).toLowerCase() + " waitlist.");
         }
         catch (IllegalArgumentException e)
         {
@@ -122,11 +131,20 @@ public class ReservationController
 
     public void viewNextParty()
     {
-        Party party = model.getNextParty();
+        Section section = view.readSection(false);
+
+        if (section == null)
+        {
+            running = false;
+            return;
+        }
+
+        Party party = model.getNextParty(section);
 
         if (party == null)
         {
-            view.showMessage("No parties are waiting.");
+            view.showMessage("No parties are waiting in the "
+                + view.sectionName(section).toLowerCase() + " section.");
         }
         else
         {
@@ -136,11 +154,20 @@ public class ReservationController
 
     public void seatNextParty()
     {
-        Party party = model.seatNextParty();
+        Section section = view.readSection(false);
+
+        if (section == null)
+        {
+            running = false;
+            return;
+        }
+
+        Party party = model.seatNextParty(section);
 
         if (party == null)
         {
-            view.showMessage("No parties are waiting.");
+            view.showMessage("No parties are waiting in the "
+                + view.sectionName(section).toLowerCase() + " section.");
         }
         else
         {
@@ -150,15 +177,16 @@ public class ReservationController
 
     public void viewWaitlist()
     {
-        Party[] parties = model.getWaitlist();
-
-        if (parties.length == 0)
+        if (model.isWaitlistEmpty())
         {
             view.showMessage("No parties are waiting.");
         }
         else
         {
-            view.showWaitlist(parties);
+            view.showWaitlist(
+                Section.INDOOR, model.getWaitlist(Section.INDOOR));
+            view.showWaitlist(
+                Section.OUTDOOR, model.getWaitlist(Section.OUTDOOR));
         }
     }
 
@@ -201,7 +229,8 @@ public class ReservationController
 
     public void viewPartyCount()
     {
-        view.showPartyCount(model.getPartyCount());
+        view.showPartyCount(
+            model.getPartyCount(Section.INDOOR),
+            model.getPartyCount(Section.OUTDOOR));
     }
 }
-

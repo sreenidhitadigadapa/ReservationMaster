@@ -1,80 +1,109 @@
 package main;
 
 /**
- * Manages the restaurant waitlist using a ReservationQueue.
- * Handles adding parties, seating parties, canceling reservations,
- * and retrieving waitlist information.
- *  
+ * Manages the restaurant's indoor and outdoor waitlists, each backed
+ * by its own ReservationQueue. Handles adding parties (routing parties
+ * with no preference to the shorter line), seating parties by section,
+ * cancelling reservations from either line, and reporting counts.
+ *
  * @author Sreenidhi Tadigadapa
- * @version 11/09/2026
+ * @version 11/17/2026
  */
 public class ReservationModel
 {
     //~ Fields ................................................................
 
-    private final ReservationQueue waitlist;
+    private final ReservationQueue indoor;
+    private final ReservationQueue outdoor;
 
 
     //~ Constructors ..........................................................
 
     /**
-     * Creates a new ReservationModel with an empty waitlist.
+     * Creates a new ReservationModel with empty indoor and outdoor
+     * waitlists.
      */
     public ReservationModel()
     {
-        waitlist = new ReservationQueue();
+        indoor = new ReservationQueue();
+        outdoor = new ReservationQueue();
     }
 
 
     //~ Public Methods ........................................................
 
     /**
-     * Adds a new party to the end of the waitlist.
-     * Rejects an existing reservation with the same name and size.
+     * Adds a new party to the back of a waitlist. INDOOR and OUTDOOR
+     * parties join that line. EITHER parties join the shorter line,
+     * with ties going to indoor. A party with the same name (ignoring
+     * case) and size already waiting in either line is rejected.
      *
      * @param name the name of the party
      * @param partySize the number of people in the party
-     * @throws IllegalArgumentException if the name or party size is invalid
+     * @param preference the section the party wants
+     * @return the section the party actually joined (INDOOR or OUTDOOR)
+     * @throws IllegalArgumentException if the name or size is invalid,
+     *         the preference is null, or the party is already waiting
      */
-    public void addParty(String name, int partySize)
+    public Section addParty(String name, int partySize, Section preference)
     {
+        if (preference == null)
+        {
+            throw new IllegalArgumentException(
+                "A seating preference is required.");
+        }
+
         Party party = new Party(name, partySize);
 
-        if (waitlist.contains(party))
+        if (indoor.contains(party) || outdoor.contains(party))
         {
             throw new IllegalArgumentException(
                 "This party is already on the waitlist.");
         }
 
-        waitlist.enqueue(party);
+        Section joined = preference;
+
+        if (preference == Section.EITHER)
+        {
+            joined = outdoor.size() < indoor.size()
+                ? Section.OUTDOOR
+                : Section.INDOOR;
+        }
+
+        queueFor(joined).enqueue(party);
+        return joined;
     }
 
 
     /**
-     * Returns the next party in the waitlist without removing it.
+     * Returns the next party in a section's waitlist without removing it.
      *
-     * @return the next party, or null if the waitlist is empty
+     * @param section INDOOR or OUTDOOR
+     * @return the next party, or null if that waitlist is empty
+     * @throws IllegalArgumentException if section is null or EITHER
      */
-    public Party getNextParty()
+    public Party getNextParty(Section section)
     {
-        return waitlist.peek();
+        return queueFor(section).peek();
     }
 
 
     /**
-     * Removes and returns the next party in the waitlist.
+     * Removes and returns the next party in a section's waitlist.
      *
-     * @return the seated party, or null if the waitlist is empty
+     * @param section INDOOR or OUTDOOR
+     * @return the seated party, or null if that waitlist is empty
+     * @throws IllegalArgumentException if section is null or EITHER
      */
-    public Party seatNextParty()
+    public Party seatNextParty(Section section)
     {
-        return waitlist.dequeue();
+        return queueFor(section).dequeue();
     }
 
 
     /**
-     * Cancels a reservation by removing the matching party
-     * from the waitlist.
+     * Cancels a reservation by removing the matching party from
+     * whichever waitlist it is in. The indoor line is searched first.
      *
      * @param name the name of the party to remove
      * @param partySize the size of the party to remove
@@ -84,39 +113,80 @@ public class ReservationModel
     public boolean cancelReservation(String name, int partySize)
     {
         Party party = new Party(name, partySize);
-        return waitlist.remove(party);
+        return indoor.remove(party) || outdoor.remove(party);
     }
 
 
     /**
-     * Returns the number of parties currently in the waitlist.
+     * Returns the number of parties waiting in one section.
      *
-     * @return the number of waiting parties
+     * @param section INDOOR or OUTDOOR
+     * @return the number of waiting parties in that section
+     * @throws IllegalArgumentException if section is null or EITHER
+     */
+    public int getPartyCount(Section section)
+    {
+        return queueFor(section).size();
+    }
+
+
+    /**
+     * Returns the number of parties waiting in both sections combined.
+     *
+     * @return the total number of waiting parties
      */
     public int getPartyCount()
     {
-        return waitlist.size();
+        return indoor.size() + outdoor.size();
     }
 
 
     /**
-     * Returns all parties currently in the waitlist in FIFO order.
+     * Returns all parties in one section's waitlist in FIFO order.
      *
-     * @return an array containing the waiting parties
+     * @param section INDOOR or OUTDOOR
+     * @return a new array containing that section's waiting parties
+     * @throws IllegalArgumentException if section is null or EITHER
      */
-    public Party[] getWaitlist()
+    public Party[] getWaitlist(Section section)
     {
-        return waitlist.toArray();
+        return queueFor(section).toArray();
     }
 
 
     /**
-     * Checks whether the waitlist contains any parties.
+     * Checks whether both waitlists are empty.
      *
-     * @return true if the waitlist is empty, false otherwise
+     * @return true if no parties are waiting in either section
      */
     public boolean isWaitlistEmpty()
     {
-        return waitlist.isEmpty();
+        return indoor.isEmpty() && outdoor.isEmpty();
+    }
+
+
+    //~ Private Methods .......................................................
+
+    /**
+     * Returns the queue for a section.
+     *
+     * @param section INDOOR or OUTDOOR
+     * @return that section's queue
+     * @throws IllegalArgumentException if section is null or EITHER
+     */
+    private ReservationQueue queueFor(Section section)
+    {
+        if (section == Section.INDOOR)
+        {
+            return indoor;
+        }
+
+        if (section == Section.OUTDOOR)
+        {
+            return outdoor;
+        }
+
+        throw new IllegalArgumentException(
+            "Section must be INDOOR or OUTDOOR.");
     }
 }

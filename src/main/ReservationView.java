@@ -15,7 +15,7 @@ import java.util.Scanner;
  * controller can stop cleanly instead of crashing.
  *
  * @author Tyler Santiago (tylermsantiago)
- * @version 11/16/2026
+ * @version 11/17/2026
  */
 public class ReservationView
 {
@@ -125,13 +125,19 @@ public class ReservationView
 
 
     /**
-     * Prints every waiting party in order, numbered from the front.
+     * Prints one section's waitlist in order, numbered from the front.
      *
-     * @param parties the waiting parties in FIFO order
+     * @param section the section the parties are waiting for
+     * @param parties that section's waiting parties in FIFO order
      */
-    public void showWaitlist(Party[] parties)
+    public void showWaitlist(Section section, Party[] parties)
     {
-        out.println("Current waitlist (front to back):");
+        out.println(sectionName(section) + " waitlist (front to back):");
+
+        if (parties.length == 0)
+        {
+            out.println("  (empty)");
+        }
 
         for (int i = 0; i < parties.length; i++)
         {
@@ -141,23 +147,46 @@ public class ReservationView
 
 
     /**
-     * Prints how many parties are waiting.
+     * Prints how many parties are waiting in each section and in total.
      *
-     * @param count the number of waiting parties
+     * @param indoorCount the number of parties waiting indoors
+     * @param outdoorCount the number of parties waiting outdoors
      */
-    public void showPartyCount(int count)
+    public void showPartyCount(int indoorCount, int outdoorCount)
     {
-        if (count == 0)
+        int total = indoorCount + outdoorCount;
+
+        if (total == 0)
         {
             out.println("No parties are waiting.");
+            return;
         }
-        else if (count == 1)
+
+        out.println("Indoor: " + indoorCount
+            + ", Outdoor: " + outdoorCount
+            + ", Total: " + total
+            + (total == 1 ? " party is waiting." : " parties are waiting."));
+    }
+
+
+    /**
+     * Returns a readable name for a section.
+     *
+     * @param section the section
+     * @return "Indoor", "Outdoor", or "Either"
+     */
+    public String sectionName(Section section)
+    {
+        switch (section)
         {
-            out.println("1 party is waiting.");
-        }
-        else
-        {
-            out.println(count + " parties are waiting.");
+            case INDOOR:
+                return "Indoor";
+
+            case OUTDOOR:
+                return "Outdoor";
+
+            default:
+                return "Either";
         }
     }
 
@@ -260,6 +289,55 @@ public class ReservationView
         }
     }
 
+
+
+    /**
+     * Reads a seating section. Accepts I or indoor, O or outdoor, and,
+     * when allowEither is true, E or either, in any capitalization.
+     * Re-prompts on anything else.
+     *
+     * @param allowEither whether "either" is an acceptable answer
+     *        (true when adding a party, false when choosing a line)
+     * @return the section chosen, or null if input ran out
+     */
+    public Section readSection(boolean allowEither)
+    {
+        String text = allowEither
+            ? "Section (I = indoor, O = outdoor, E = either): "
+            : "Section (I = indoor, O = outdoor): ";
+
+        while (true)
+        {
+            String line = prompt(text);
+
+            if (line == null)
+            {
+                return null;
+            }
+
+            String answer = line.trim().toLowerCase();
+
+            if (answer.equals("i") || answer.equals("indoor"))
+            {
+                return Section.INDOOR;
+            }
+
+            if (answer.equals("o") || answer.equals("outdoor"))
+            {
+                return Section.OUTDOOR;
+            }
+
+            if (allowEither
+                && (answer.equals("e") || answer.equals("either")))
+            {
+                return Section.EITHER;
+            }
+
+            showError(allowEither
+                ? "Enter I, O, or E, for example: I"
+                : "Enter I or O, for example: I");
+        }
+    }
 
 
     //~ Private Methods .......................................................
